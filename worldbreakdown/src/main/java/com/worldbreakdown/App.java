@@ -1,13 +1,14 @@
 package com.worldbreakdown;
 
-/**
- * Hello world!
- *
- */
+import javax.xml.ws.Endpoint;
+
+import com.worldbreakdown.services.DorayakiServiceImpl;
+
 public class App 
 {
     public static void main( String[] args )
     {
-        System.out.println( "Hello World!" );
+        Endpoint.publish("http://localhost:9999/dorayaki", new DorayakiServiceImpl());
+        System.out.println("Dorayaki Service Started!");
     }
 }
