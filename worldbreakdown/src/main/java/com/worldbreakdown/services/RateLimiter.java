@@ -7,10 +7,10 @@ import javax.jws.soap.SOAPBinding.Style;
 
 @WebService
 @SOAPBinding(style = Style.DOCUMENT)
-public interface DorayakiService{
+public interface RateLimiter {
     @WebMethod
-    public String addDorayaki(String name, int price);
+    public String countRequest(String ip, String endpoint);
 
     @WebMethod
-    public String getDorayaki(int id);
+    public String addLogReq(String ip, String endpoint);
 }

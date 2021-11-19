@@ -12,4 +12,8 @@ public class DorayakiServiceImpl implements DorayakiService{
         return "Dorayaki "+name+" akan ditambahkan berharga "+price;
     }
     
+    @Override
+    public String getDorayaki(int id) {
+        return "Dorayaki ";
+    }
 }
