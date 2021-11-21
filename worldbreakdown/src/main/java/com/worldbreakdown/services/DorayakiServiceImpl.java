@@ -46,4 +46,14 @@ public class DorayakiServiceImpl implements DorayakiService{
 
         return result;
     }
+
+    @Override
+    public String postRequestStock(String name, int quantity) {
+        return "Dorayaki "+name;
+    }
+
+    @Override
+    public String getRequestStock() {
+        return "Dorayaki";
+    }
 }

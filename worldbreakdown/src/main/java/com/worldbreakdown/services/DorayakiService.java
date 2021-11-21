@@ -13,4 +13,10 @@ public interface DorayakiService{
 
     @WebMethod
     public String getDorayaki(int id);
+
+    @WebMethod
+    public String postRequestStock(String name, int quantity);
+
+    @WebMethod
+    public String getRequestStock();
 }
