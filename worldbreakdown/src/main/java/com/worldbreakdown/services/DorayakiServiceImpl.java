@@ -59,6 +59,7 @@ public class DorayakiServiceImpl implements DorayakiService {
         params.put("recipe_name", name);
         params.put("quantity", quantity);
         params.put("email", email);
+        params.put("status", "pending");
 
         StringBuilder postData = new StringBuilder();
 
@@ -74,24 +75,13 @@ public class DorayakiServiceImpl implements DorayakiService {
             conn.setRequestMethod("POST");
             conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
             conn.setRequestProperty("Content-Length", String.valueOf(postDataBytes.length));
-            conn.setDoOutput(true);
-            conn.getOutputStream().write(postDataBytes);
+            conn.setDoOutput(false);
 
-            Reader in = new BufferedReader(new InputStreamReader(conn.getInputStream() , "UTF-8"));
-            StringBuilder sb = new StringBuilder();
-            for (int c; (c = in.read()) >= 0;)
-                sb.append((char)c);
-            String response = sb.toString();
-            System.out.println(response);
-
-
+            return ("Request delivered");
             
         } catch (Exception e) {
-            //TODO: handle exception
-            System.out.println(e);
+            return ("Failed to request " + e);
         }
-
-        return ("tes");
     }
 
     @Override
