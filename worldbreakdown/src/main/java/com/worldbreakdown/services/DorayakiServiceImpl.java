@@ -77,7 +77,7 @@ public class DorayakiServiceImpl implements DorayakiService {
             conn.setRequestProperty("Content-Length", String.valueOf(postDataBytes.length));
             conn.setDoOutput(false);
 
-            return ("Request delivered");
+            return ("Request sent");
             
         } catch (Exception e) {
             return ("Failed to request " + e);
