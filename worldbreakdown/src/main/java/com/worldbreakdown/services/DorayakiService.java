@@ -16,5 +16,5 @@ public interface DorayakiService{
     public String postRequestStock(String name, int quantity, String email, String ip);
 
     @WebMethod
-    public String getRequestStock();
+    public String getRequestStock(String ip);
 }
