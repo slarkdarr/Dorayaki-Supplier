@@ -12,10 +12,10 @@ public interface DorayakiService{
     public String addDorayaki(String name, int price);
 
     @WebMethod
-    public String getDorayaki(int id);
+    public String getDorayaki(int id, String ip);
 
     @WebMethod
-    public String postRequestStock(String name, int quantity, String email);
+    public String postRequestStock(String name, int quantity, String email, String ip);
 
     @WebMethod
     public String getRequestStock();

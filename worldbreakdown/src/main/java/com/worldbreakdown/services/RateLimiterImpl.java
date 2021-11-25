@@ -10,6 +10,7 @@ public class RateLimiterImpl implements RateLimiter{
     public String countRequest(String ip, String endpoint) {
         return "<'Masuk pak eko'>";
     }
+
     @Override
     public String addLogReq(String ip, String endpoint) {
         return "<'Keluar pak eko'>";

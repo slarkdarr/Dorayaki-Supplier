@@ -12,6 +12,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.sql.*;
 
 @WebService(endpointInterface = "com.worldbreakdown.services.DorayakiService")
 public class DorayakiServiceImpl implements DorayakiService {
@@ -22,37 +23,47 @@ public class DorayakiServiceImpl implements DorayakiService {
     }
 
     @Override
-    public String getDorayaki(int id) {
+    public String getDorayaki(int id, String ip) {
         String result = "";
-        try {
+        final String DB_URL = "jdbc:mysql://localhost:3306/dorayaki";
+        final String USER = "root";
+        final String PASS = "Gaussian021001";
+        final String QUERY = "SELECT * FROM logrequests WHERE ip=(?)";
 
-            URL url = new URL("http://localhost:5000/api/recipes" + ((id == -1) ? "" : "/" + id));// your url i.e fetch
-                                                                                                  // data from .
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("GET");
-            conn.setRequestProperty("Accept", "application/json");
-            if (conn.getResponseCode() != 200) {
-                throw new RuntimeException("Failed : HTTP Error code : " + conn.getResponseCode());
-            }
-            InputStreamReader in = new InputStreamReader(conn.getInputStream());
-            BufferedReader br = new BufferedReader(in);
-            String output = "";
-            while ((output = br.readLine()) != null) {
-                result = result + output;
-            }
-            conn.disconnect();
-            JSONObject obj = new JSONObject(result);
-            result = obj.getString("data");
-
-        } catch (Exception e) {
-            System.out.println("Exception in NetClientGet:- " + e);
+        try (Connection con = DriverManager.getConnection(DB_URL, USER, PASS);
+            Statement stmt = con.createStatement();
+            ResultSet rst = stmt.executeQuery(QUERY);) {
+                try {
+                    URL url = new URL("http://localhost:5000/api/recipes" + ((id == -1) ? "" : "/" + id));// your url i.e fetch
+                                                                                                          // data from .
+                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                    conn.setRequestMethod("GET");
+                    conn.setRequestProperty("Accept", "application/json");
+                    if (conn.getResponseCode() != 200) {
+                        throw new RuntimeException("Failed : HTTP Error code : " + conn.getResponseCode());
+                    }
+                    InputStreamReader in = new InputStreamReader(conn.getInputStream());
+                    BufferedReader br = new BufferedReader(in);
+                    String output = "";
+                    while ((output = br.readLine()) != null) {
+                        result = result + output;
+                    }
+                    conn.disconnect();
+                    JSONObject obj = new JSONObject(result);
+                    result = obj.getString("data");
+        
+                } catch (Exception e) {
+                    System.out.println("Exception in NetClientGet:- " + e);
+                }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
 
         return result;
     }
 
     @Override
-    public String postRequestStock(String name, int quantity, String email) {
+    public String postRequestStock(String name, int quantity, String email, String ip) {
         try {
         URL url = new URL("http://localhost:5000/api/requests");
         Map<String, Object> params = new LinkedHashMap<>();
