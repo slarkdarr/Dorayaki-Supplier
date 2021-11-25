@@ -16,20 +16,15 @@ import java.sql.*;
 
 @WebService(endpointInterface = "com.worldbreakdown.services.DorayakiService")
 public class DorayakiServiceImpl implements DorayakiService {
-
-    @Override
-    public String addDorayaki(String name, int price) {
-        return "Dorayaki " + name + " akan ditambahkan berharga " + price;
-    }
+    static String DB_URL = "jdbc:mysql://localhost:3306/dorayaki";
+    static String USER = "root";
+    static String PASS = "";
 
     @Override
     public String getDorayaki(int id, String ip) {
         String result = "";
-        String DB_URL = "jdbc:mysql://localhost:3306/dorayaki";
-        String USER = "root";
-        String PASS = "";
-        String QUERY = "SELECT COUNT(*) FROM logrequests WHERE ip='"+ip+"' AND createdAt > NOW() - INTERVAL 30 MINUTE";
-
+        String QUERY = "SELECT COUNT(*) FROM logrequests WHERE ip='"+ip+"' AND endpoint='getDorayaki' AND createdAt > NOW() - INTERVAL 30 MINUTE";
+        Boolean exceeded = false;
         try (
             Connection con = DriverManager.getConnection(DB_URL, USER, PASS);
             Statement stmt = con.createStatement();
@@ -37,17 +32,19 @@ public class DorayakiServiceImpl implements DorayakiService {
             ) {
                 rst.next();
                 Integer jumlah = rst.getInt(1);
-                if (jumlah > 10) {
-                    con.close();
-                    return "Too Many Requests!";
+                if (jumlah >= 10) {
+                    exceeded = true;
                 } else {
-                    String insertQuery = "INSERT INTO logrequests(ip, endpoint, createdAt) VALUES (" + "'" + ip + "'" + ", 'getdorayaki', NOW())";
+                    String insertQuery = "INSERT INTO logrequests(ip, endpoint, createdAt) VALUES (" + "'" + ip + "'" + ", 'getDorayaki', NOW())";
                     stmt.executeUpdate(insertQuery);
-                    con.close();
-                    return "Request Succeded";
                 }
+                con.close();
         } catch (SQLException e) {
             e.printStackTrace();
+        }
+
+        if (exceeded) {
+            return "Too Many Requests!";
         }
 
         try {
@@ -78,6 +75,30 @@ public class DorayakiServiceImpl implements DorayakiService {
 
     @Override
     public String postRequestStock(String name, int quantity, String email, String ip) {
+        String QUERY = "SELECT COUNT(*) FROM logrequests WHERE ip='"+ip+"' AND endpoint='postRequestStock' AND createdAt > NOW() - INTERVAL 30 MINUTE";
+        Boolean exceeded = false;
+        try (
+            Connection con = DriverManager.getConnection(DB_URL, USER, PASS);
+            Statement stmt = con.createStatement();
+            ResultSet rst = stmt.executeQuery(QUERY);
+            ) {
+                rst.next();
+                Integer jumlah = rst.getInt(1);
+                if (jumlah >= 10) {
+                    exceeded = true;
+                } else {
+                    String insertQuery = "INSERT INTO logrequests(ip, endpoint, createdAt) VALUES (" + "'" + ip + "'" + ", 'postRequestStock', NOW())";
+                    stmt.executeUpdate(insertQuery);
+                }
+                con.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        if (exceeded) {
+            return "Too Many Requests!";
+        }
+
         try {
         URL url = new URL("http://localhost:5000/api/requests");
         Map<String, Object> params = new LinkedHashMap<>();
