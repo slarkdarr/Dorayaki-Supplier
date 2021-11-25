@@ -28,21 +28,23 @@ public class DorayakiServiceImpl implements DorayakiService {
         String DB_URL = "jdbc:mysql://localhost:3306/dorayaki";
         String USER = "root";
         String PASS = "";
-        String QUERY = "SELECT * FROM logrequests WHERE ip='"+ip+"' AND NOW()";
-        Boolean exceeded = false;
+        String QUERY = "SELECT COUNT(*) FROM logrequests WHERE ip='"+ip+"' AND createdAt > NOW() - INTERVAL 30 MINUTE";
 
         try (
             Connection con = DriverManager.getConnection(DB_URL, USER, PASS);
             Statement stmt = con.createStatement();
             ResultSet rst = stmt.executeQuery(QUERY);
             ) {
-                // while (rst.next()) {
-                //     // add logic to count ip in 30 minutes
-                //  }
-                // Select Count(*) as jumlah
-                // if jumlah > 10 exceeded true
-                if (exceeded) {
-                    return "terlalu banyak request";
+                rst.next();
+                Integer jumlah = rst.getInt(1);
+                if (jumlah > 10) {
+                    con.close();
+                    return "Too Many Requests!";
+                } else {
+                    String insertQuery = "INSERT INTO logrequests(ip, endpoint, createdAt) VALUES (" + "'" + ip + "'" + ", 'getdorayaki', NOW())";
+                    stmt.executeUpdate(insertQuery);
+                    con.close();
+                    return "Request Succeded";
                 }
         } catch (SQLException e) {
             e.printStackTrace();
