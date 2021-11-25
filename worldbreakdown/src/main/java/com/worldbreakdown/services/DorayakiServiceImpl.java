@@ -23,27 +23,28 @@ public class DorayakiServiceImpl implements DorayakiService {
     @Override
     public String getDorayaki(int id, String ip) {
         String result = "";
-        String QUERY = "SELECT COUNT(*) FROM logrequests WHERE ip='"+ip+"' AND endpoint='getDorayaki' AND createdAt > NOW() - INTERVAL 10 MINUTE";
+        String QUERY = "SELECT COUNT(*) FROM logrequests WHERE ip='" + ip
+                + "' AND endpoint='getDorayaki' AND createdAt > NOW() - INTERVAL 10 MINUTE";
         Boolean exceeded = false;
-        try (
-            Connection con = DriverManager.getConnection(DB_URL, USER, PASS);
-            Statement stmt = con.createStatement();
-            ResultSet rst = stmt.executeQuery(QUERY);
-            ) {
-                rst.next();
-                Integer jumlah = rst.getInt(1);
-                if (jumlah >= 10) {
-                    exceeded = true;
-                } else {
-                    String insertQuery = "INSERT INTO logrequests(ip, endpoint, createdAt) VALUES (" + "'" + ip + "'" + ", 'getDorayaki', NOW())";
-                    stmt.executeUpdate(insertQuery);
-                }
-                con.close();
+        try (Connection con = DriverManager.getConnection(DB_URL, USER, PASS);
+                Statement stmt = con.createStatement();
+                ResultSet rst = stmt.executeQuery(QUERY);) {
+            rst.next();
+            Integer jumlah = rst.getInt(1);
+            if (jumlah >= 10) {
+                exceeded = true;
+            } else {
+                String insertQuery = "INSERT INTO logrequests(ip, endpoint, createdAt) VALUES (" + "'" + ip + "'"
+                        + ", 'getDorayaki', NOW())";
+                stmt.executeUpdate(insertQuery);
+            }
+            con.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
         if (exceeded) {
+            System.out.println("Too Many Requests! on getDorayaki");
             return "Too Many Requests!";
         }
 
@@ -69,62 +70,66 @@ public class DorayakiServiceImpl implements DorayakiService {
         } catch (Exception e) {
             System.out.println("Exception in NetClientGet:- " + e);
         }
-
+        System.out.println("Getting item on getDorayaki");
         return result;
     }
 
     @Override
     public String postRequestStock(String name, int quantity, String email, String ip) {
-        String QUERY = "SELECT COUNT(*) FROM logrequests WHERE ip='"+ip+"' AND endpoint='postRequestStock' AND createdAt > NOW() - INTERVAL 10 MINUTE";
+        String QUERY = "SELECT COUNT(*) FROM logrequests WHERE ip='" + ip
+                + "' AND endpoint='postRequestStock' AND createdAt > NOW() - INTERVAL 10 MINUTE";
         Boolean exceeded = false;
-        try (
-            Connection con = DriverManager.getConnection(DB_URL, USER, PASS);
-            Statement stmt = con.createStatement();
-            ResultSet rst = stmt.executeQuery(QUERY);
-            ) {
-                rst.next();
-                Integer jumlah = rst.getInt(1);
-                if (jumlah >= 10) {
-                    exceeded = true;
-                } else {
-                    String insertQuery = "INSERT INTO logrequests(ip, endpoint, createdAt) VALUES (" + "'" + ip + "'" + ", 'postRequestStock', NOW())";
-                    stmt.executeUpdate(insertQuery);
-                }
-                con.close();
+        try (Connection con = DriverManager.getConnection(DB_URL, USER, PASS);
+                Statement stmt = con.createStatement();
+                ResultSet rst = stmt.executeQuery(QUERY);) {
+            rst.next();
+            Integer jumlah = rst.getInt(1);
+            if (jumlah >= 10) {
+                exceeded = true;
+            } else {
+                String insertQuery = "INSERT INTO logrequests(ip, endpoint, createdAt) VALUES (" + "'" + ip + "'"
+                        + ", 'postRequestStock', NOW())";
+                stmt.executeUpdate(insertQuery);
+            }
+            con.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
         if (exceeded) {
+            System.out.println("Too Many Requests! on postRequestStock");
             return "Too Many Requests!";
         }
 
         try {
-        URL url = new URL("http://localhost:5000/api/requests");
-        Map<String, Object> params = new LinkedHashMap<>();
-        params.put("recipe_name", name);
-        params.put("quantity", quantity);
-        params.put("email", email);
-        params.put("status", "pending");
+            URL url = new URL("http://localhost:5000/api/requests");
+            Map<String, Object> params = new LinkedHashMap<>();
+            params.put("recipe_name", name);
+            params.put("quantity", quantity);
+            params.put("email", email);
+            params.put("status", "pending");
+            StringBuilder postData = new StringBuilder();
 
-        StringBuilder postData = new StringBuilder();
-
-            for (Map.Entry<String, Object> param : params.entrySet()){
-                if (postData.length() != 0) postData.append('&');
+            for (Map.Entry<String, Object> param : params.entrySet()) {
+                if (postData.length() != 0)
+                    postData.append('&');
                 postData.append(URLEncoder.encode(param.getKey(), "UTF-8"));
                 postData.append('=');
                 postData.append(URLEncoder.encode(String.valueOf(param.getValue()), "UTF-8"));
             }
             byte[] postDataBytes = postData.toString().getBytes("UTF-8");
 
-            HttpURLConnection conn = (HttpURLConnection)url.openConnection();
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("POST");
             conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
             conn.setRequestProperty("Content-Length", String.valueOf(postDataBytes.length));
-            conn.setDoOutput(false);
-
+            conn.setDoOutput(true);
+            conn.getOutputStream().write(postDataBytes);
+            conn.disconnect();
+            System.out.println("Sending item on postRequestStock");
+            System.out.println("Sent");
             return ("Request sent");
-            
+
         } catch (Exception e) {
             return ("Failed to request " + e);
         }
@@ -133,33 +138,34 @@ public class DorayakiServiceImpl implements DorayakiService {
     @Override
     public String getRequestStock(String ip) {
         String result = "";
-        String QUERY = "SELECT COUNT(*) FROM logrequests WHERE ip='"+ip+"' AND endpoint='postRequestStock' AND createdAt > NOW() - INTERVAL 10 MINUTE";
+        String QUERY = "SELECT COUNT(*) FROM logrequests WHERE ip='" + ip
+                + "' AND endpoint='postRequestStock' AND createdAt > NOW() - INTERVAL 10 MINUTE";
         Boolean exceeded = false;
-        try (
-            Connection con = DriverManager.getConnection(DB_URL, USER, PASS);
-            Statement stmt = con.createStatement();
-            ResultSet rst = stmt.executeQuery(QUERY);
-            ) {
-                rst.next();
-                Integer jumlah = rst.getInt(1);
-                if (jumlah >= 10) {
-                    exceeded = true;
-                } else {
-                    String insertQuery = "INSERT INTO logrequests(ip, endpoint, createdAt) VALUES (" + "'" + ip + "'" + ", 'postRequestStock', NOW())";
-                    stmt.executeUpdate(insertQuery);
-                }
-                con.close();
+        try (Connection con = DriverManager.getConnection(DB_URL, USER, PASS);
+                Statement stmt = con.createStatement();
+                ResultSet rst = stmt.executeQuery(QUERY);) {
+            rst.next();
+            Integer jumlah = rst.getInt(1);
+            if (jumlah >= 10) {
+                exceeded = true;
+            } else {
+                String insertQuery = "INSERT INTO logrequests(ip, endpoint, createdAt) VALUES (" + "'" + ip + "'"
+                        + ", 'postRequestStock', NOW())";
+                stmt.executeUpdate(insertQuery);
+            }
+            con.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
         if (exceeded) {
+            System.out.println("Too Many Requests! on getRequestStock");
             return "Too Many Requests!";
         }
         try {
 
             URL url = new URL("http://localhost:5000/api/requests?limit=true");// your url i.e fetch
-                                                                                                  // data from .
+                                                                               // data from .
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
             conn.setRequestProperty("Accept", "application/json");
@@ -179,7 +185,7 @@ public class DorayakiServiceImpl implements DorayakiService {
         } catch (Exception e) {
             System.out.println("Exception in NetClientGet:- " + e);
         }
-
+        System.out.println("Getting item on getRequestStock");
         return result;
     }
 }
