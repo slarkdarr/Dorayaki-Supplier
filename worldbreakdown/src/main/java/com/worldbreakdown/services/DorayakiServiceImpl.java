@@ -125,7 +125,15 @@ public class DorayakiServiceImpl implements DorayakiService {
             conn.setRequestProperty("Content-Length", String.valueOf(postDataBytes.length));
             conn.setDoOutput(true);
             conn.getOutputStream().write(postDataBytes);
-            conn.disconnect();
+
+            Reader in = new BufferedReader(new InputStreamReader(conn.getInputStream() , "UTF-8"));
+            StringBuilder sb = new StringBuilder();
+            for (int c; (c = in.read()) >= 0;)
+                sb.append((char)c);
+            String response = sb.toString();
+            System.out.println(response);
+
+            // conn.disconnect();
             System.out.println("Sending item on postRequestStock");
             System.out.println("Sent");
             return ("Request sent");
